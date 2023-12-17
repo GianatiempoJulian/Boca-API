@@ -22,7 +22,8 @@ class CompetitionController extends Controller
                 'id' => $competition->id,
                 'name' => $competition->name,
                 'image' => $competition->image,
-                'season' => $competition->season
+                'seasons' => $competition->seasons,
+                'games' => $competition->games
             ];
         };
 
@@ -41,7 +42,6 @@ class CompetitionController extends Controller
         $competition = new Competition();
         $competition->name = $request->name;
         $competition->image = $request->image;
-        $competition->seasonId = $request->seasonId;
         $competition->save();
 
         $information = [
@@ -62,7 +62,7 @@ class CompetitionController extends Controller
     {
         $information = [
             "competition" => $competition,
-            "season" => $competition->season,
+            "season" => $competition->seasons,
             "games" => $competition->games
         ];
         return response()->json($information);
@@ -80,7 +80,7 @@ class CompetitionController extends Controller
     {
         $competition->name = $request->name;
         $competition->image = $request->image;
-        $competition->seasonId = $request->seasonId;
+        $competition->season_id = $request->season_id;
         $competition->save();
 
         $information = [
@@ -112,22 +112,24 @@ class CompetitionController extends Controller
 
     public function attachSeason(Request $request){
 
-        $competition = Competition::find($request->competitionId);
-        $competition->serie()->attach($request->seasonId);
-
-        $information = [
-            'message' => 'Season attached successfully',
-            'competition' => $competition
-        ];
-    
-        return response()->json($information);
-    
+        $competition = Competition::find($request->competition_id);
+        if ($competition->seasons == NULL || ! $competition->seasons->contains($request->season_id)) {
+            $competition->seasons()->attach($request->season_id);
+            $information = [
+                'message' => 'Season attached successfully',
+                'competition' => $competition
+            ];
+        
+            return response()->json($information);
+        }else{
+            return response()->json('This competition already is in this season!');
+        } 
     }
 
     public function detachSeason(Request $request){
 
-        $competition = Competition::find($request->competitionId);
-        $competition->serie()->detach($request->seasonId);
+        $competition = Competition::find($request->competition_id);
+        $competition->seasons()->detach($request->season_id);
 
         $information = [
             'message' => 'Season detached successfully',
@@ -139,10 +141,10 @@ class CompetitionController extends Controller
 
     public function attachGame(Request $request){
 
-        $competition = Competition::find($request->competitionId);
+        $competition = Competition::find($request->competition);
 
-        if ($competition->games == NULL || ! $competition->games->contains($request->gameId)) {
-            $competition->games()->attach($request->gameId);
+        if ($competition->games == NULL || ! $competition->games->contains($request->game_id)) {
+            $competition->games()->attach($request->game_id);
 
             $information = [
                 'message' => 'Game attached successfully',
@@ -158,8 +160,8 @@ class CompetitionController extends Controller
 
     public function detachGame(Request $request){
 
-        $competition = Competition::find($request->competitionId);
-        $competition->games()->detach($request->gameId);
+        $competition = Competition::find($request->competition);
+        $competition->games()->detach($request->game_id);
 
         $information = [
             'message' => 'Game detached successfully',
@@ -168,4 +170,23 @@ class CompetitionController extends Controller
 
         return response()->json($information);
     }
+
+    public function games(Competition $competition){
+        $findOne = Competition::find($competition->id);
+        $games = $findOne->games;
+        return response()->json($games);
+    }
+
+    public function seasons(Request $request){
+        $competition = Competition::find($request->competition);
+        $seasons = $competition->seasons;
+
+        $information = [
+            'message' => 'Seasons fetched successfully',
+            'seasons' => $seasons
+        ];
+
+        return response()->json($information);
+    }
+
 }

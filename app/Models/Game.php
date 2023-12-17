@@ -13,7 +13,11 @@ class Game extends Model
         return $this->belongsToMany(Player::class,'games_players');
     }
 
+    public function teams(){
+        return $this->belongsToMany(Team::class,'games_teams');
+    }
+
     public function competition(){
-        return $this->belongsTo(Competition::class);
+        return $this->belongsTo(Competition::class,"competition_id");
     }
 }

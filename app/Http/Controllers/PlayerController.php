@@ -32,7 +32,8 @@ class PlayerController extends Controller
                 'wins' => $player->wins,
                 'draws'=>$player->draws,
                 'loses'=>$player->loses,
-                'image'=>$player->image
+                'image'=>$player->image,
+                'games'=>$player->games
             ];
         };
 
@@ -53,14 +54,17 @@ class PlayerController extends Controller
         $player->goals = $request->goals;
         $player->assists = $request->assists;
         $player->cleansheets = $request->cleansheets;
-        $player->yellowCards = $request->yellowCards;
-        $player->redCards = $request->redCards;
+        $player->redcards = $request->redcards;
         $player->position = $request->position;
         $player->trophies = $request->trophies;
         $player->wins = $request->wins;
         $player->draws = $request->draws;
         $player->loses = $request->loses;
         $player->image = $request->image;
+        $player->goals_today = $request->goals_today;
+        $player->assists_today = $request->assists_today;
+        $player->cleansheets_today= $request->cleansheets_today;
+        $player->redcard_today = $request->redcard_today;
         $player->save();
 
         $information = [
@@ -100,14 +104,17 @@ class PlayerController extends Controller
         $player->goals = $request->goals;
         $player->assists = $request->assists;
         $player->cleansheets = $request->cleansheets;
-        $player->yellowCards = $request->yellowCards;
-        $player->redCards = $request->redCards;
+        $player->redcards = $request->redcards;
         $player->position = $request->position;
         $player->trophies = $request->trophies;
         $player->wins = $request->wins;
         $player->draws = $request->draws;
         $player->loses = $request->loses;
         $player->image = $request->image;
+        $player->goals_today = $request->goals_today;
+        $player->assists_today = $request->assists_today;
+        $player->cleansheets_today= $request->cleansheets_today;
+        $player->redcard_today = $request->redcard_today;
         $player->save();
 
         $information = [
@@ -138,11 +145,11 @@ class PlayerController extends Controller
 
     public function attachGame(Request $request){
 
-        $player = Player::find($request->playerId);
+        $player = Player::find($request->player_id);
       
 
-        if ($player->games == NULL || ! $player->games->contains($request->gameId)) {
-            $player->games()->attach($request->gameId);
+        if ($player->games == NULL || ! $player->games->contains($request->game_id)) {
+            $player->games()->attach($request->game_id);
             $information = [
                 'message' => 'Game attached successfully',
                 'player' => $player
@@ -158,8 +165,8 @@ class PlayerController extends Controller
 
     public function detachGame(Request $request){
 
-        $player = Player::find($request->playerId);
-        $player->games()->detach($request->gameId);
+        $player = Player::find($request->player_id);
+        $player->games()->detach($request->game_id);
 
         $information = [
             'message' => 'Game detached successfully',
@@ -171,7 +178,7 @@ class PlayerController extends Controller
     }
 
     public function games(Request $request){
-        $player = Player::find($request->playerId);
+        $player = Player::find($request->player_id);
         $games = $player->games;
 
         $information = [

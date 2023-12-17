@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Competition;
 use App\Models\Season;
 use Illuminate\Http\Request;
 
@@ -25,6 +26,8 @@ class SeasonController extends Controller
                 'competitions' => $season->competitions
             ];
         };
+
+        krsort($seasonArray);
 
         return response()->json($seasonArray);
     }
@@ -61,7 +64,7 @@ class SeasonController extends Controller
     {
         $information = [
             "season" => $season,
-            "competitions" => $season->competitions,
+            "competitions" => $season->competitions
         ];
         return response()->json($information);
     }
@@ -105,16 +108,26 @@ class SeasonController extends Controller
         return response()->json($information);
     }
 
+    public function attachCompetition(Request $request){
+
+        $season = Season::find($request->season_id);
+
+        if ($season->competitions == NULL || ! $season->competitions->contains($request->competition_id)) {            
+            $season->competitions()->attach($request->competition_id);
+            $information = [
+                'message' => 'Competititon attached successfully',
+                'season' => $season
+            ];
+            return response()->json($information);
+        }else{
+            return response()->json('This season already has this player!');
+        }
+    }
+
     public function competitions(Request $request){
-        $season = Season::find($request->seasonId);
+        $season = Season::find($request->season_id);
         $competitions = $season->competitions;
-
-        $information = [
-            'message' => 'Competitions fetched successfully',
-            'competitions' => $competitions
-        ];
-
-        return response()->json($information);
+        return response()->json($competitions);
     }
     
 }

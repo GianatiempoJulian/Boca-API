@@ -16,15 +16,11 @@ return new class extends Migration
         Schema::create('games', function (Blueprint $table) {
             $table->id();
             $table->string('stadium');
-            $table->string('teamHome');
-            $table->string('teamAway');
-            $table->string('teamHomeImage');
-            $table->string('teamAwayImage');
-            $table->integer('goalsHome');
-            $table->integer('goalsAway');
+            $table->integer('goalsBoca');
+            $table->integer('goalsTeamRival');
             $table->date('gameDate');
-            $table->unsignedBigInteger('competitionId');
-            $table->foreign('competitionId')->references('id')->on('competitions');
+            $table->unsignedBigInteger('competition_id');
+            $table->foreign('competition_id')->references('id')->on('competitions');
             $table->timestamps();
         });
     }

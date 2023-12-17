@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Models\Player;
+use App\Models\Team;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
@@ -21,15 +23,12 @@ class GameController extends Controller
             $gamesArray[]= [
                 'id' => $game->id,
                 'stadium' => $game->stadium,
-                'teamHome' => $game->teamHome,
-                'teamAway' => $game->teamAway,
-                'teamHomeImage' => $game->teamHomeImage,
-                'teamAwayImage' => $game->teamAwayImage,
-                'goalsHome' => $game->goalsHome,
-                'goalsAway' => $game->goalsAway,
+                'goalsBoca' => $game->goalsBoca,
+                'goalsTeamRival' => $game->goalsTeamRival,
                 'gameDate' => $game->gameDate,
                 'competition' => $game->competition,
-                'players' => $game->players
+                'players' => $game->players,
+                'teams' => $game->teams
             ];
         };
 
@@ -46,14 +45,10 @@ class GameController extends Controller
     {
         $game = new Game();
         $game->stadium = $request->stadium;
-        $game->teamHome = $request->teamHome;
-        $game->teamAway = $request->teamAway;
-        $game->teamHomeImage = $request->teamHomeImage;
-        $game->teamAwayImage = $request->teamAwayImage;
-        $game->goalsHome = $request->goalsHome;
-        $game->goalsAway = $request->goalsAway;
+        $game->goalsBoca = $request->goalsBoca;
+        $game->goalsTeamRival = $request->goalsTeamRival;
         $game->gameDate = $request->gameDate;
-        $game->competitionId = $request->competitionId;
+        $game->competition_id = $request->competition_id;
       
         $game->save();
 
@@ -76,7 +71,8 @@ class GameController extends Controller
         $information = [
             "game" => $game,
             "competition" => $game->competition,
-            "players" => $game->players
+            "players" => $game->players,
+            "teams" => $game->teams
         ];
         return response()->json($information);
     }
@@ -92,14 +88,10 @@ class GameController extends Controller
     public function update(Request $request, Game $game)
     {
         $game->stadium = $request->stadium;
-        $game->teamHome = $request->teamHome;
-        $game->teamAway = $request->teamAway;
-        $game->teamHomeImage = $request->teamHomeImage;
-        $game->teamAwayImage = $request->teamAwayImage;
-        $game->goalsHome = $request->goalsHome;
-        $game->goalsAway = $request->goalsAway;
+        $game->goalsBoca = $request->goalsBoca;
+        $game->goalsTeamRival = $request->goalsTeamRival;
         $game->gameDate = $request->gameDate;
-        $game->competitionId = $request->competitionId;
+        $game->competition_id = $request->competition_id;
         $game->save();
 
         $information = [
@@ -130,10 +122,22 @@ class GameController extends Controller
 
     public function attachPlayer(Request $request){
 
-        $game = Game::find($request->gameId);
+        $game = Game::find($request->game_id);
+        $player = Player::find($request->player_id);
        
-        if ($game->players == NULL || ! $game->players->contains($request->playerId)) {
-            $game->players()->attach($request->playerId);
+        if ($game->players == NULL || ! $game->players->contains($request->player_id)) {
+
+            $player->goals = $player->goals + $request->goals_today;
+            $player->assists = $player->assists + $request->assists_today;
+            $player->cleansheets = $player->cleansheets + $request->cleansheets_today;
+            $player->redcards = $player->redcards + $request->redcard_today;
+            $player->goals_today = $request->goals_today;
+            $player->assists_today = $request->assists_today;
+            $player->cleansheets_today = $request->cleansheets_today;
+            $player->redcard_today = $request->redcard_today;
+            $player->save();
+            
+            $game->players()->attach($request->player_id);
             $information = [
                 'message' => 'Player attached successfully',
                 'game' => $game
@@ -142,16 +146,12 @@ class GameController extends Controller
         }else{
             return response()->json('This game already has this player!');
         }
-        
-    
-       
-    
     }
 
     public function detachPlayer(Request $request){
 
-        $game = Game::find($request->gameId);
-        $game->players()->detach($request->playerId);
+        $game = Game::find($request->game_id);
+        $game->players()->detach($request->player_id);
 
         $information = [
             'message' => 'Player detached successfully',
@@ -163,12 +163,55 @@ class GameController extends Controller
     }
 
     public function players(Request $request){
-        $game = Game::find($request->gameId);
+        $game = Game::find($request->game_id);
         $players = $game->players;
 
         $information = [
             'message' => 'Players fetched successfully',
             'players' => $players
+        ];
+
+        return response()->json($information);
+    }
+
+    public function attachTeam(Request $request){
+
+        $game = Game::find($request->game_id);
+    
+        if ($game->teams == NULL || ! $game->teams->contains($request->team_id)) {
+
+            $game->teams()->attach($request->team_id);
+            $information = [
+                'message' => 'Team attached successfully',
+                'game' => $game
+            ];
+            return response()->json($information);
+        }else{
+            return response()->json('This game already has this team!');
+        }
+    }
+
+    public function detachTeam(Request $request){
+
+        $game = Game::find($request->game_id);
+        $game->teams()->detach($request->team_id);
+
+        $information = [
+            'message' => 'Team detached successfully',
+            'game' => $game
+        ];
+    
+        return response()->json($information);
+    
+    }
+
+    public function teams(Request $request){
+        $game = Game::find($request->game_id);
+        $teams = $game->teams;
+
+        $information = [
+            'message' => 'Teams fetched successfully',
+            'teams' => $teams
         ];
 
         return response()->json($information);

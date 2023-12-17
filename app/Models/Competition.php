@@ -9,8 +9,8 @@ class Competition extends Model
 {
     use HasFactory;
 
-    public function season(){
-        return $this->belongsTo(Season::class);
+    public function seasons(){
+        return $this->belongsToMany(Season::class,'competitions_seasons');
     }
 
     public function games(){

@@ -4,6 +4,7 @@ use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\TeamController;
 use App\Models\Competition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,12 +38,29 @@ Route::delete('/games/{game}', [GameController::class, 'destroy']); //Delete one
 Route::get('/games', [GameController::class, 'index']); //Retrieve all the games
 Route::get('/games/{game}', [GameController::class, 'show']); //Retrieve one game
 
+//*====  TEAMS ROUTES  ====*
+Route::post('/teams', [TeamController::class, 'store']); //Store one team
+Route::put('/teams/{team}', [TeamController::class, 'update']); //Update one team
+Route::delete('/teams/{team}', [TeamController::class, 'destroy']); //Delete one team
+Route::get('/teams', [TeamController::class, 'index']); //Retrieve all the team
+Route::get('/teams/{team}', [TeamController::class, 'show']); //Retrieve one team
+
 //*====  PLAYERS ROUTES  ====*
 Route::post('/players', [PlayerController::class, 'store']); //Store one player
 Route::put('/players/{player}', [PlayerController::class, 'update']); //Update one player
 Route::delete('/players/{player}', [PlayerController::class, 'destroy']); //Delete one player
 Route::get('/players', [PlayerController::class, 'index']); //Retrieve all the player
 Route::get('/players/{player}', [PlayerController::class, 'show']); //Retrieve one player
+
+
+//*====  TEAMS <-> GAMES ROUTES  ====*//
+Route::post('/teams/games', [TeamController::class, 'attachGame']); //Attach one game to a one team
+Route::post('/teams/games/detach', [TeamController::class, 'detachGame']); //Detach one game to a one team
+Route::post('/teams/{team}/games', [TeamController::class, 'games']); //Fetch all the games of this team
+
+Route::post('/games/teams', [GameController::class, 'attachTeam']); //Attach one team to a one game
+Route::post('/games/teams/detach', [GameController::class, 'detachTeam']); //Detach one team to a one game
+Route::post('/games/{game}/teams', [GameController::class, 'teams']); //Fetch all the teams of this game
 
 //*====  PLAYERS <-> GAMES ROUTES  ====*//
 Route::post('/players/games', [PlayerController::class, 'attachGame']); //Attach one game to a one player
@@ -55,11 +73,18 @@ Route::post('/games/{game}/players', [GameController::class, 'players']); //Fetc
 
 //*====  SEASON <-> COMPETITION ROUTES  ====*//
 Route::post('/seasons/{season}/competitions', [SeasonController::class, 'competitions']); //Fetch all the competitions of this season
+Route::post('/competitions/{competition}/seasons', [CompetitionController::class, 'seasons']); //Fetch all the seasons of this competition
 
 Route::post('/competitions/seasons', [CompetitionController::class, 'attachSeason']); //Attach one season to a one competition  
 Route::post('/competitions/seasons/detach', [CompetitionController::class, 'detachSeason']); //Detach one season to a one competition
 
+Route::post('/seasons/competitions', [SeasonController::class, 'attachCompetition']); //Attach one competition to a one season  
+Route::post('/seasons/competitions/detach', [SeasonController::class, 'detachCompetition']); //Detach one season to a one competition
+
+
 //*====  COMPETITION <-> GAMES ROUTES  ====*//
+Route::get('/competitions/{competition}/games', [CompetitionController::class, 'games']); //Fetch all the games of this competition
 Route::post('/competitions/games', [CompetitionController::class, 'attachGame']); //Attach one game to a one competition  
 Route::post('/competitions/games/detach', [CompetitionController::class, 'detachGame']); //Detach one game to a one competition
+
 

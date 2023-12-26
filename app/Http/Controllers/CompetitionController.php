@@ -183,7 +183,7 @@ class CompetitionController extends Controller
 
         $information = [
             'message' => 'Seasons fetched successfully',
-            'seasons' => $seasons
+            'seasons' => $seasons,
         ];
 
         return response()->json($information);

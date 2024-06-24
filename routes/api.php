@@ -55,7 +55,7 @@ Route::get('/competitions/{competition}/games', [CompetitionController::class, '
 
 
 
-//! RUTAS CONTROLADAS !//A
+//! RUTAS CONTROLADAS !//
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
     //*====  USER ROUTES  ====*//

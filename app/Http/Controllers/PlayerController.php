@@ -146,8 +146,7 @@ class PlayerController extends Controller
     public function attachGame(Request $request){
 
         $player = Player::find($request->player_id);
-      
-
+    
         if ($player->games == NULL || ! $player->games->contains($request->game_id)) {
             $player->games()->attach($request->game_id);
             $information = [
